@@ -15,6 +15,7 @@ cityscapes_param = {'crop_size': [720, 720],
 
 SAVE_DIR = './output/'
 SNAPSHOT_DIR = './save-model'
+a = 'test commit'
 
 
 def get_arguments():
