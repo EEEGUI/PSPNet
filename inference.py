@@ -1,11 +1,6 @@
 from __future__ import print_function
 
 import argparse
-import os
-import sys
-import time
-import tensorflow as tf
-import numpy as np
 from scipy import misc
 
 from model import PSPNet101, PSPNet50
