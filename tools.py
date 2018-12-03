@@ -84,3 +84,14 @@ def preprocess(img, h, w):
     pad_img = tf.expand_dims(pad_img, dim=0)
 
     return pad_img
+
+
+if __name__ == '__main__':
+    import cv2
+    img, name = load_img('input/test1.png')
+    img2 = cv2.imread('input/test1.png')
+    print(img2)
+    # cv2.imshow('img', img)
+    with tf.Session() as sess:
+        img=sess.run(img)
+        print(img-img2[:, :, ::-1])
