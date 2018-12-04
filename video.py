@@ -1,6 +1,7 @@
 from __future__ import print_function
 import cv2
 from scipy import misc
+import numpy as np
 
 from model import PSPNet101, PSPNet50
 from tools import *
@@ -34,12 +35,12 @@ class VideoSegmentation:
         self.img = tf.placeholder(dtype=tf.float32, shape=[self.h, self.w, 3], name='input')
         img_shape = tf.shape(self.img)
         h, w = (tf.maximum(crop_size[0], img_shape[0]), tf.maximum(crop_size[1], img_shape[1]))
-        self.img = preprocess(self.img, h, w)
+        img_input = preprocess(self.img, h, w)
 
         # Create network.
-        net = PSPNet({'data': self.img}, is_training=False, num_classes=num_classes)
+        net = PSPNet({'data': img_input}, is_training=False, num_classes=num_classes)
         with tf.variable_scope('', reuse=True):
-            flipped_img = tf.image.flip_left_right(tf.squeeze(self.img))
+            flipped_img = tf.image.flip_left_right(tf.squeeze(img_input))
             flipped_img = tf.expand_dims(flipped_img, dim=0)
             net2 = PSPNet({'data': flipped_img}, is_training=False, num_classes=num_classes)
 
@@ -82,21 +83,18 @@ class VideoSegmentation:
             if ret is True:
                 img = frame[:, :, ::-1]
                 preds = self.sess.run(self.pred, feed_dict={self.img: img})
-                self.out.write(preds)
-                # cv2.imshow('frame1',frame1)
-                # cv2.imshow('frame2', frame2)
-                # cv2.waitKey(1)
-                # if cv2.waitKey(1) & 0xFF == 27:
-                #     break
+                print(preds[0].shape)
+                self.out.write(np.uint8(preds[0][:, :, ::-1]))
             else:
                 break
             # Release everything if job is finished
         self.cap.release()
         self.out.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     for file in os.listdir(r'input'):
         video_dir = 'input/' + file
-        vs = VideoSegmentation
+        vs = VideoSegmentation(video_dir)
+        vs.process()
