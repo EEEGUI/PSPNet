@@ -2,9 +2,12 @@ from __future__ import print_function
 import cv2
 from scipy import misc
 import numpy as np
+import os
+import matplotlib.pyplot as plt
 
 from model import PSPNet101, PSPNet50
 from tools import *
+
 
 
 class VideoSegmentation:
@@ -17,10 +20,10 @@ class VideoSegmentation:
         filename = video_dir.split('/')[-1].split('.')[0]
         self.cap = cv2.VideoCapture(video_dir)
         # Define the codec and create VideoWriter object
-        fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         self.h = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.w = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.out = cv2.VideoWriter('output/seg_%s.avi' % filename, fourcc, 15.0, (int(self.h), int(self.w)))
+        self.out = cv2.VideoWriter('output/seg_%s.avi' % filename, fourcc, 15.0, (int(self.w), int(self.h)))
         self._load_model()
 
     def _load_model(self):
@@ -83,14 +86,22 @@ class VideoSegmentation:
             if ret is True:
                 img = frame[:, :, ::-1]
                 preds = self.sess.run(self.pred, feed_dict={self.img: img})
-                print(preds[0].shape)
-                self.out.write(np.uint8(preds[0][:, :, ::-1]))
+                img = np.uint8(preds[0][:, :, ::-1])
+                self.out.write(img)
             else:
                 break
             # Release everything if job is finished
         self.cap.release()
         self.out.release()
         # cv2.destroyAllWindows()
+
+
+def show_img(img):
+    plt.figure('img')
+    plt.imshow(img)
+    plt.axis('off')
+    plt.show()
+
 
 
 if __name__ == '__main__':

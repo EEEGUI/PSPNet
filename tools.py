@@ -86,6 +86,8 @@ def preprocess(img, h, w):
     return pad_img
 
 
+
+
 if __name__ == '__main__':
     import cv2
     img, name = load_img('input/test1.png')
